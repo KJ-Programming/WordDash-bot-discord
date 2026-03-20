@@ -43,10 +43,9 @@ def ensure_database():
     cur.close()
     conn.close()
 
-ensure_database()
+# Remove ensure_database() call here
 
-db = psycopg2.connect(os.getenv('DATABASE_URL'))
-cursor = db.cursor()
+# db connection will be established in on_ready
 
 current_word = None
 claimed = False
@@ -83,6 +82,13 @@ def update_xp(discord_id, xp_gain):
 async def on_ready():
     print(f'Logged in as {bot.user}')
     await tree.sync()
+    
+    # Initialize database after bot is ready
+    global db, cursor
+    ensure_database()
+    db = psycopg2.connect(os.getenv('DATABASE_URL'))
+    cursor = db.cursor()
+    
     bot.loop.create_task(send_word_task())
 
 async def send_word_task():
