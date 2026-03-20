@@ -20,7 +20,6 @@ def ensure_database():
     conn = psycopg2.connect(db_url)
     cur = conn.cursor()
     
-    # Create tables if they don't exist
     cur.execute("""
         CREATE TABLE IF NOT EXISTS users (
             id SERIAL PRIMARY KEY,
@@ -43,13 +42,10 @@ def ensure_database():
     cur.close()
     conn.close()
 
-# Remove ensure_database() call here
-
-# db connection will be established in on_ready
 
 current_word = None
 claimed = False
-channel_id = int(os.getenv('CHANNEL_ID', '1288124712948'))  # Default if not set
+channel_id = int(os.getenv('CHANNEL_ID', '1288124712948'))  
 
 words_file = os.path.join(base_dir, 'words.txt')
 if not os.path.exists(words_file):
