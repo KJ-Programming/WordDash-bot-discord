@@ -1,6 +1,6 @@
 import discord
 from discord import app_commands
-import mysql.connector
+import psycopg2
 import random
 import asyncio
 import os
@@ -13,48 +13,44 @@ tree = app_commands.CommandTree(bot)
 base_dir = os.path.dirname(os.path.abspath(__file__))
 
 def ensure_database():
-    create_script = os.path.join(base_dir, "bot_db.sql")
-    if not os.path.exists(create_script):
-        raise FileNotFoundError(f"Database script not found: {create_script}")
-
-    tmp_db = mysql.connector.connect(
-        host="localhost",
-        user="root",  
-        password="admin123"  # WAIT I FORGOT MY PASSWORDD
-    )
-    tmp_cur = tmp_db.cursor()
-
-    with open(create_script, "r", encoding="utf-8") as f:
-        sql = f.read()
-
-    for stmt in sql.split(";"):
-        stmt = stmt.strip()
-        if not stmt:
-            continue
-        try:
-            tmp_cur.execute(stmt)
-        except mysql.connector.Error as e:
-            if e.errno in (1007, 1050, 1049):
-                continue
-            raise
-
-    tmp_db.commit()
-    tmp_cur.close()
-    tmp_db.close()
+    db_url = os.getenv('DATABASE_URL')
+    if not db_url:
+        raise ValueError("DATABASE_URL environment variable not set")
+    
+    conn = psycopg2.connect(db_url)
+    cur = conn.cursor()
+    
+    # Create tables if they don't exist
+    cur.execute("""
+        CREATE TABLE IF NOT EXISTS users (
+            id SERIAL PRIMARY KEY,
+            discord_id BIGINT UNIQUE NOT NULL,
+            username VARCHAR(255) NOT NULL,
+            xp INTEGER DEFAULT 0,
+            level INTEGER DEFAULT 1
+        );
+    """)
+    
+    cur.execute("""
+        CREATE TABLE IF NOT EXISTS words (
+            id SERIAL PRIMARY KEY,
+            word VARCHAR(50) NOT NULL,
+            used_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+        );
+    """)
+    
+    conn.commit()
+    cur.close()
+    conn.close()
 
 ensure_database()
 
-db = mysql.connector.connect(
-    host="localhost",
-    user="root",  
-    password="admin123",  # PASSWORDDDDDDDDD
-    database="typing_bot"
-)
+db = psycopg2.connect(os.getenv('DATABASE_URL'))
 cursor = db.cursor()
 
 current_word = None
 claimed = False
-channel_id = int(os.getenv("CHANNEL_ID"))  #enter YOUR dAMN CHANNel ID
+channel_id = int(os.getenv('CHANNEL_ID', '1288124712948'))  # Default if not set
 
 words_file = os.path.join(base_dir, 'words.txt')
 if not os.path.exists(words_file):
