@@ -54,7 +54,7 @@ cursor = db.cursor()
 
 current_word = None
 claimed = False
-channel_id = 1288124712948  #enter YOUR dAMN CHANNel ID
+channel_id = int(os.getenv("CHANNEL_ID"))  #enter YOUR dAMN CHANNel ID
 
 words_file = os.path.join(base_dir, 'words.txt')
 if not os.path.exists(words_file):
@@ -125,5 +125,6 @@ async def leaderboard(interaction):
     for i, (username, xp, level) in enumerate(results, 1):
         embed.add_field(name=f"{i}. {username}", value=f"Level {level} - {xp} XP", inline=False)
     await interaction.response.send_message(embed=embed)
-
-bot.run('BOT TOKEN')  #bot token GOES IN HERE NIGGER
+    
+TOKEN = os.getenv("BOT_TOKEN")
+bot.run(TOKEN)  #bot token GOES IN HERE NIGGER
