@@ -79,7 +79,6 @@ async def on_ready():
     print(f'Logged in as {bot.user}')
     await tree.sync()
     
-    # Initialize database after bot is ready
     global db, cursor
     ensure_database()
     db = psycopg2.connect(os.getenv('DATABASE_URL'))
