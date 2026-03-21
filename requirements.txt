@@ -1,0 +1,4 @@
+discord
+mysql-connector-python
+asyncio
+psycopg2
