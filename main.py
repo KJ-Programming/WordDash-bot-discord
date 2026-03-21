@@ -124,4 +124,4 @@ async def leaderboard(interaction):
     await interaction.response.send_message(embed=embed)
     
 TOKEN = os.getenv("BOT_TOKEN")
-bot.run(TOKEN)  #bot token GOES IN HERE NIGGER
+bot.run(TOKEN)  #bot token GOES IN HERE 
